@@ -119,19 +119,19 @@ class MainActivity : AppCompatActivity() {
                 combine(Updater.available, Updater.status) { a, s -> a to s }.collect { (a, s) ->
                     updateBtn.visibility = if (a != null) View.VISIBLE else View.GONE
                     if (a != null) {
-                        val busy = s.startsWith("Downloading") || s.startsWith("Installing") || s.startsWith("Allow") || s.startsWith("Update failed")
-                        updateBtn.text = if (busy) s else "Update to version ${a.versionName}"
+                        val busy = s.startsWith("Downloading")
+                        updateBtn.text = if (busy) s else "Download version ${a.versionName}"
                     }
                 }
             }
         }
         if (Updater.autoCheck(this)) lifecycleScope.launch { Updater.check(this@MainActivity, 3 * 3_600_000L, notify = true) }
-        if (intent?.getBooleanExtra("aries_update", false) == true) lifecycleScope.launch { Updater.install(this@MainActivity) }
+        if (intent?.getBooleanExtra("aries_update", false) == true) Updater.download(this)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (intent.getBooleanExtra("aries_update", false)) lifecycleScope.launch { Updater.install(this@MainActivity) }
+        if (intent.getBooleanExtra("aries_update", false)) Updater.download(this)
         if (intent.getBooleanExtra("search", false)) { info = null; connect(forceSearch = true) }
     }
 
@@ -329,7 +329,7 @@ class MainActivity : AppCompatActivity() {
                 4 -> lifecycleScope.launch {
                     toast("Checking for updates …")
                     val u = Updater.check(this@MainActivity)
-                    toast(if (u != null) "Version ${u.versionName} is available – tap the Update bar" else Updater.status.value)
+                    toast(if (u != null) "Version ${u.versionName} is available – tap the Download bar" else Updater.status.value)
                 }
                 5 -> prefs().edit().putBoolean("autoUpdate", !Updater.autoCheck(this)).apply()
                 6 -> {
@@ -382,7 +382,7 @@ class MainActivity : AppCompatActivity() {
             setPadding(dp(12), dp(10), dp(12), dp(10))
             background = GradientDrawable().apply { setColor(accent); cornerRadius = dp(10).toFloat() }
             visibility = View.GONE
-            setOnClickListener { lifecycleScope.launch { Updater.install(this@MainActivity) } }
+            setOnClickListener { Updater.download(this@MainActivity) }
         }
         root.addView(updateBtn, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             setMargins(dp(12), 0, dp(12), dp(8))

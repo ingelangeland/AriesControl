@@ -12,4 +12,4 @@
 - Eller trykk **Enter IP address** og skriv inn adressen som står i displayet på Aries-en.
 
 ## Oppdateringer
-Appen sjekker selv om det finnes en ny versjon og viser en **Update**-knapp. Du kan også sjekke under menyen ⋮ → *Check for updates*.
+Appen sjekker selv om det finnes en ny versjon og viser en **Download**-knapp. Den åpner nedlastingen i nettleseren. Trykk på filen når den er lastet ned, og installer den oppå den gamle. Du kan også sjekke under menyen ⋮ → *Check for updates*.

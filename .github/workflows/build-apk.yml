@@ -62,7 +62,7 @@ jobs:
             ut/version.json
           body: |
             AriesControl.apk – install on your Android phone.
-            The app updates itself after this (menu ⋮ → Check for updates).
+            The app tells you when a new version is out (menu ⋮ → Check for updates).
 
   simulate:
     needs: build
