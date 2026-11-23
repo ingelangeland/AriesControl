@@ -9,7 +9,7 @@ Android app for the original **AURALiC Aries** streamer (2014, FemtoClock), now 
   3. Last resort: type the IP address (shown on the Aries display). It is remembered.
 - **Shows the Aries settings page** (Lightning web interface) inside the app, with zoom, back button and file picking.
 - If the Aries gets a new IP address, tap **Search again** and the app finds it.
-- **Tells you about new versions** from this project's "Latest version" (menu ⋮ → Check for updates). The download opens in the browser; the app never installs anything itself.
+- **Updates itself** from this project's "Latest version" (menu ⋮ → Check for updates). No app store needed.
 
 ## Requirements
 Android 10 or newer, and the phone on the same Wi-Fi as the Aries.
