@@ -28,4 +28,5 @@ if grep -q "no.ariescontrol" sim/crash.txt; then cp sim/crash.txt sim/KRASJ.txt;
 rm -f sim/crash.txt
 grep -E "AndroidRuntime|ariescontrol" sim/LOGG-SISTE.txt | tail -100 > sim/RAPPORT.txt
 sudo pkill -f "http.server 80" || true
+find sim -type f -empty -delete
 exit 0
