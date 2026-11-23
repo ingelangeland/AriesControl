@@ -6,11 +6,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.net.ConnectivityManager
 import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.net.wifi.WifiNetworkSpecifier
 import android.os.Bundle
-import android.os.PatternMatcher
 import android.provider.Settings
 import android.text.InputType
 import android.util.TypedValue
@@ -53,7 +49,6 @@ class WifiSetupActivity : AppCompatActivity() {
     private var address: String? = null
     private var svc: AriesService? = null
     private var hotspotNetwork: Network? = null
-    private var hotspotCallback: ConnectivityManager.NetworkCallback? = null
     private var pollJob: Job? = null
     private var stepBack: (() -> Unit)? = null
 
@@ -94,63 +89,30 @@ class WifiSetupActivity : AppCompatActivity() {
         text("If the Aries isn't connected to any network, it starts its own Wi-Fi hotspot (named something like “AURALiC-Lightning”). " +
             "Your phone connects to that hotspot, and then you choose which Wi-Fi the Aries should use.")
         text("Switch the Aries on and wait about a minute before you start.", Ui.SUB)
-        button("Connect to the Aries hotspot") { connectHotspot() }
-        button("My phone is already on the Aries hotspot", outlined = true) { lifecycleScope.launch { useCurrentWifi() } }
+        text("1. Open Wi-Fi settings and connect the phone to the AURALiC network.\n2. Come back here and tap “I'm connected to the Aries hotspot”.\n\nAndroid may say the network has no internet – choose to stay connected.", Ui.SUB)
+        button("Open Wi-Fi settings") { openWifiSettings() }
+        button("I'm connected to the Aries hotspot", outlined = true) { lifecycleScope.launch { useCurrentWifi() } }
         button("The Aries is on my home network", outlined = true) { lifecycleScope.launch { searchHome() } }
     }
 
-    private fun connectHotspot() {
-        releaseHotspot()
-        busy("Looking for the Aries hotspot …\n\nIf Android shows a list, choose the AURALiC network.")
-        // Match "AURALiC…" in any letter case; older Android versions only take a fixed prefix
-        val spec = runCatching {
-            WifiNetworkSpecifier.Builder()
-                .setSsidPattern(PatternMatcher("[Aa][Uu][Rr][Aa][Ll][Ii][Cc].*", PatternMatcher.PATTERN_ADVANCED_GLOB))
-                .build()
-        }.getOrElse {
-            WifiNetworkSpecifier.Builder().setSsidPattern(PatternMatcher("AURAL", PatternMatcher.PATTERN_PREFIX)).build()
-        }
-        val req = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .removeCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .setNetworkSpecifier(spec)
-            .build()
-        val cb = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                runOnUiThread {
-                    hotspotNetwork = network
-                    lifecycleScope.launch { findOnNetwork(network) }
-                }
-            }
-            override fun onUnavailable() {
-                runOnUiThread { failConnect("Couldn't connect to the Aries hotspot.") }
-            }
-            override fun onLost(network: Network) {
-                runOnUiThread { if (network == hotspotNetwork) { hotspotNetwork = null } }
-            }
-        }
-        hotspotCallback = cb
-        try {
-            cm.requestNetwork(req, cb, 60_000)
-        } catch (e: Exception) {
-            hotspotCallback = null
-            failConnect("Android didn't allow the connection (${e.message}).")
-        }
+    private fun openWifiSettings() {
+        runCatching { startActivity(Intent(Settings.ACTION_WIFI_SETTINGS)) }
     }
 
     private fun failConnect(msg: String) {
         clear("Set up the Aries network")
         text(msg)
-        text("You can also connect by hand: open Wi-Fi settings, choose the AURALiC network, come back here and tap “My phone is already on the Aries hotspot”.", Ui.SUB)
-        button("Try again") { connectHotspot() }
-        button("Open Wi-Fi settings", outlined = true) { runCatching { startActivity(Intent(Settings.ACTION_WIFI_SETTINGS)) } }
-        button("My phone is already on the Aries hotspot", outlined = true) { lifecycleScope.launch { useCurrentWifi() } }
+        text("Check that the phone is connected to the AURALiC network in Wi-Fi settings, then try again.", Ui.SUB)
+        button("Open Wi-Fi settings") { openWifiSettings() }
+        button("I'm connected to the Aries hotspot", outlined = true) { lifecycleScope.launch { useCurrentWifi() } }
+        button("The Aries is on my home network", outlined = true) { lifecycleScope.launch { searchHome() } }
         stepBack = { showConnectStep() }
     }
 
     private suspend fun useCurrentWifi() {
         val n = Discovery.lanNetwork(this)
         if (n == null) { failConnect("Your phone isn't connected to any Wi-Fi."); return }
+        hotspotNetwork = n
         findOnNetwork(n)
     }
 
@@ -326,7 +288,7 @@ class WifiSetupActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java).putExtra("search", true).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
             finish()
         }
-        button("Open Wi-Fi settings", outlined = true) { runCatching { startActivity(Intent(Settings.ACTION_WIFI_SETTINGS)) } }
+        button("Open Wi-Fi settings", outlined = true) { openWifiSettings() }
     }
 
     private fun confirmHotspot() {
@@ -341,7 +303,8 @@ class WifiSetupActivity : AppCompatActivity() {
                     runCatching { withTimeoutOrNull(15_000) { Aries.startHotspot(a, s) } }
                     clear("Hotspot started")
                     text("Wait about a minute, then connect your phone to the Aries hotspot.")
-                    button("Connect to the Aries hotspot") { connectHotspot() }
+                    button("Open Wi-Fi settings") { openWifiSettings() }
+                    button("I'm connected to the Aries hotspot", outlined = true) { lifecycleScope.launch { useCurrentWifi() } }
                     stepBack = { showConnectStep() }
                 }
             }
@@ -353,8 +316,6 @@ class WifiSetupActivity : AppCompatActivity() {
     private fun releaseHotspot() {
         stopPolling()
         runCatching { cm.bindProcessToNetwork(null) }
-        hotspotCallback?.let { runCatching { cm.unregisterNetworkCallback(it) } }
-        hotspotCallback = null
         hotspotNetwork = null
     }
 

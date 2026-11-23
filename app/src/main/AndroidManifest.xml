@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- Needed to hear the Aries answer when searching the network (SSDP/UPnP) -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-    <!-- Connecting the phone to the Aries' own hotspot during network setup -->
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <!-- Built-in updates -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
