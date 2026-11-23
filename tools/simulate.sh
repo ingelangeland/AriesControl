@@ -52,16 +52,36 @@ adb exec-out screencap -p > sim/4-after-switch.png
 if grep -q "SetRendererConfig" sim/SET-LOGG.txt 2>/dev/null; then echo "OK: setting reached the Aries" > sim/RAPPORT-set.txt; else echo "FEIL: no setting was sent (switch at '$XY')" > sim/RAPPORT-set.txt; fi
 cat sim/SET-LOGG.txt >> sim/RAPPORT-set.txt 2>/dev/null
 
-# 5) Classic view (bottom-right tab)
-adb shell input tap 970 2090
+# 5) Classic view (tab at the bottom)
+XY=$(python3 tools/find.py Classic); echo "classic at: $XY"
+[ -n "$XY" ] && adb shell input tap $XY
 sleep 8
 adb exec-out screencap -p > sim/5-classic.png
+
+# 6) Network setup: list from the fake Aries, choose HomeWiFi, type a password, Join
+adb shell am start -S -n no.ariescontrol/.MainActivity --es ip 10.0.2.2 --es setup wifi
+sleep 10
+adb exec-out screencap -p > sim/6-wifi-list.png
+XY=$(python3 tools/find.py HomeWiFi); echo "HomeWiFi at: $XY"
+[ -n "$XY" ] && adb shell input tap $XY
+sleep 3
+XY=$(python3 tools/find.py android.widget.EditText --class); echo "password field at: $XY"
+[ -n "$XY" ] && adb shell input tap $XY && sleep 1 && adb shell input text "test1234"
+adb shell input keyevent 111
+sleep 1
+adb exec-out screencap -p > sim/7-wifi-form.png
+XY=$(python3 tools/find.py JOIN); [ -z "$XY" ] && XY=$(python3 tools/find.py Join); echo "join at: $XY"
+[ -n "$XY" ] && adb shell input tap $XY
+sleep 6
+adb exec-out screencap -p > sim/8-wifi-done.png
+if grep -q "wifi_ssid" sim/SET-LOGG.txt 2>/dev/null && grep -q "test1234" sim/SET-LOGG.txt; then echo "OK: Wi-Fi settings reached the Aries" > sim/RAPPORT-wifi.txt; else echo "FEIL: Wi-Fi settings were not sent" > sim/RAPPORT-wifi.txt; fi
+grep "SetDeviceConfig" sim/SET-LOGG.txt >> sim/RAPPORT-wifi.txt 2>/dev/null
 
 adb logcat -d > sim/LOGG-SISTE-full.txt
 tail -c 300000 sim/LOGG-SISTE-full.txt > sim/LOGG-SISTE.txt; rm sim/LOGG-SISTE-full.txt
 adb logcat -d -b crash > sim/crash.txt
 if grep -q "no.ariescontrol" sim/crash.txt; then cp sim/crash.txt sim/KRASJ.txt; fi
-rm -f sim/crash.txt sim/ui.xml
+rm -f sim/crash.txt sim/ui.xml sim/SET-LOGG.txt.tmp
 grep -E "AndroidRuntime|ariescontrol" sim/LOGG-SISTE.txt | tail -100 > sim/RAPPORT.txt
 sudo pkill -f "fakearies/server.py" || true
 find sim -type f -empty -delete

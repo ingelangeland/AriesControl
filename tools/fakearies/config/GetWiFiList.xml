@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <group language_index="group_wifi_list" id="group_wifi_list">
+        <node type="wifi_list" id="SSID_HomeWiFi_1" current="1">
+            <key><display_name>HomeWiFi</display_name></key>
+            <value><SSID>HomeWiFi</SSID><signal_strength>67</signal_strength><encryption_type>on</encryption_type></value>
+        </node>
+        <node type="wifi_list" id="SSID_Neighbour_1">
+            <key><display_name>Neighbour</display_name></key>
+            <value><SSID>Neighbour</SSID><signal_strength>31</signal_strength><encryption_type>on</encryption_type></value>
+        </node>
+        <node type="wifi_list" id="SSID_Guest_1">
+            <key><display_name>Guest</display_name></key>
+            <value><SSID>Guest</SSID><signal_strength>45</signal_strength><encryption_type>off</encryption_type></value>
+        </node>
+        <node type="wifi_list" id="SSID_Party_1">
+            <key><display_name>Party \xF0\x9F\x8E\x89</display_name></key>
+            <value><SSID>Party \xF0\x9F\x8E\x89</SSID><signal_strength>20</signal_strength><encryption_type>on</encryption_type></value>
+        </node>
+    </group>
+</root>

@@ -52,6 +52,7 @@ class SettingsPage(
     val svc: AriesService,
     private val deviceName: String,
     private val labels: Labels,
+    private val openNetwork: ((String) -> Unit)?,
     private val openClassic: () -> Unit,
 ) {
     private val dp = act.resources.displayMetrics.density
@@ -135,8 +136,15 @@ class SettingsPage(
 
             val card = card()
             for (n in g.nodes) addNode(card, n, null, 0)
-            if (g.menu.isNotEmpty()) {
-                addRow(card, row(g.menu.joinToString(" · ") { it.label }, "Open in classic view", null, 0, chevron()) { openClassic() })
+            val net = openNetwork
+            val other = g.menu.filter { net == null || it.id !in NETWORK_ACTIONS }
+            for (m in g.menu) {
+                val mode = NETWORK_ACTIONS[m.id] ?: continue
+                if (net == null) continue
+                addRow(card, row(m.label, NETWORK_HINTS[mode], null, 0, chevron()) { net(mode) })
+            }
+            if (other.isNotEmpty()) {
+                addRow(card, row(other.joinToString(" · ") { it.label }, "Open in classic view", null, 0, chevron()) { openClassic() })
             }
             content.addView(card, lp())
         }
@@ -145,6 +153,11 @@ class SettingsPage(
                 text = "Last update failed: $loadError"; setTextColor(Ui.DANGER); textSize = 13f
             }, lp().apply { topMargin = dp(16) })
         }
+    }
+
+    companion object {
+        private val NETWORK_ACTIONS = mapOf("set_wireless" to "wifi", "set_wired" to "wired", "set_ap" to "ap")
+        private val NETWORK_HINTS = mapOf("wifi" to "Choose which Wi-Fi the Aries uses", "wired" to "Use the network cable", "ap" to "The Aries starts its own Wi-Fi")
     }
 
     private fun current(n: CNode, comp: CNode?): String =

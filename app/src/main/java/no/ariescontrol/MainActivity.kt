@@ -108,6 +108,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         connect(forceSearch = false)
+        // Open network setup straight away (used by the automatic test)
+        intent?.getStringExtra("setup")?.let { mode ->
+            startActivity(Intent(this, WifiSetupActivity::class.java).putExtra("mode", mode)
+                .apply { Prefs.load(this@MainActivity)?.let { putExtra("address", it.ip) } })
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -127,6 +132,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra("aries_update", false)) lifecycleScope.launch { Updater.install(this@MainActivity) }
+        if (intent.getBooleanExtra("search", false)) { info = null; connect(forceSearch = true) }
     }
 
     // ---------- Finding and opening the Aries ----------
@@ -198,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         val shown = i.services.take(4)
         shown.forEachIndexed { idx, svc ->
             m.add(0, idx, idx, svc.title).setIcon(iconFor(svc.name))
-            pages[idx] = SettingsPage(this, s.ip, svc, i.name, labels) { bottomNav.selectedItemId = CLASSIC }
+            pages[idx] = SettingsPage(this, s.ip, svc, i.name, labels, { mode -> openNetworkSetup(mode) }) { bottomNav.selectedItemId = CLASSIC }
         }
         m.add(0, CLASSIC, 99, "Classic").setIcon(R.drawable.ic_tab_web)
         statusBox.visibility = View.GONE
@@ -207,6 +213,13 @@ class MainActivity : AppCompatActivity() {
         startTab = 0
         bottomNav.selectedItemId = first
         if (selectedTab != first) selectTab(first)
+    }
+
+    private fun openNetworkSetup(mode: String?) {
+        val i = Intent(this, WifiSetupActivity::class.java)
+        if (mode != null) i.putExtra("mode", mode)
+        if (info != null) current?.let { i.putExtra("address", it.ip) }
+        startActivity(i)
     }
 
     private fun iconFor(name: String) = when (name) {
@@ -302,6 +315,7 @@ class MainActivity : AppCompatActivity() {
         val m = PopupMenu(this, anchor)
         m.menu.add(0, 1, 0, "Search for the Aries again")
         m.menu.add(0, 2, 1, "Enter IP address")
+        m.menu.add(0, 7, 2, "Set up the Aries network")
         m.menu.add(0, 3, 2, "Open in browser")
         m.menu.add(0, 4, 3, "Check for updates")
         m.menu.add(0, 5, 4, "Check for updates automatically").apply { isCheckable = true; isChecked = Updater.autoCheck(this@MainActivity) }
@@ -310,6 +324,7 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 1 -> connect(forceSearch = true)
                 2 -> askAddress()
+                7 -> openNetworkSetup(null)
                 3 -> current?.let { runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://${it.ip}/"))) } } ?: toast("No streamer connected yet")
                 4 -> lifecycleScope.launch {
                     toast("Checking for updates …")
@@ -443,6 +458,10 @@ class MainActivity : AppCompatActivity() {
         buttons.addView(MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
             text = "Enter IP address"
             setOnClickListener { askAddress() }
+        }, LinearLayout.LayoutParams(dp(240), ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
+        buttons.addView(MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+            text = "Set up the Aries network"
+            setOnClickListener { openNetworkSetup(null) }
         }, LinearLayout.LayoutParams(dp(240), ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
         statusBox.addView(buttons)
         content.addView(statusBox, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER))

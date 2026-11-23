@@ -134,7 +134,7 @@ object Aries {
         AriesInfo(root.childText("device_name") ?: "Aries", root.childText("device_sn") ?: "", services.sortedBy { it.order })
     }
 
-    private fun esc(s: String) = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
+    fun esc(s: String) = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 
     private suspend fun soap(address: String, svc: AriesService, action: String, args: List<Pair<String, String>>): Element = withContext(Dispatchers.IO) {
         val urn = "urn:av-openhome-org:service:${svc.name}:1"
@@ -166,6 +166,75 @@ object Aries {
         val xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>$nodesXml</root>"
         soap(address, svc, svc.setAction, listOf(svc.property to xml))
     }
+
+    // ---------- Network setup (same commands as the Aries' own "Wireless Configuration") ----------
+
+    class WifiNet(val ssid: String, val name: String, val signal: Int, val locked: Boolean, val current: Boolean)
+
+    /** The Wi-Fi networks the Aries can see. */
+    suspend fun wifiList(address: String, svc: AriesService): List<WifiNet> {
+        val resp = soap(address, svc, "GetWiFiList", emptyList())
+        val xml = resp.children().firstOrNull()?.textContent?.trim().orEmpty()
+        if (xml.isEmpty()) return emptyList()
+        return withContext(Dispatchers.Default) {
+            val root = parseXml(xml).documentElement
+            val out = ArrayList<WifiNet>()
+            for (g in root.children("group")) for (n in g.children("node")) {
+                val v = n.child("value") ?: continue
+                val raw = v.childText("SSID") ?: continue
+                val ssid = decodeEscapes(raw)
+                out.add(WifiNet(
+                    ssid = raw,
+                    name = ssid,
+                    signal = v.childText("signal_strength")?.toIntOrNull() ?: 0,
+                    locked = v.childText("encryption_type") == "on",
+                    current = n.getAttribute("current") == "1",
+                ))
+            }
+            // Current network first, then strongest; one entry per name
+            out.sortedWith(compareByDescending<WifiNet> { it.current }.thenByDescending { it.signal }).distinctBy { it.ssid }
+        }
+    }
+
+    /** Network names with special characters come as "\xF0\x9F…" (UTF-8 bytes). */
+    fun decodeEscapes(s: String): String {
+        if (!s.contains("\\x")) return s
+        val bytes = java.io.ByteArrayOutputStream()
+        var i = 0
+        while (i < s.length) {
+            if (i + 3 < s.length && s[i] == '\\' && s[i + 1] == 'x') {
+                val h = s.substring(i + 2, i + 4).toIntOrNull(16)
+                if (h != null) { bytes.write(h); i += 4; continue }
+            }
+            bytes.write(s.substring(i, i + 1).toByteArray(Charsets.UTF_8)); i++
+        }
+        return bytes.toString("UTF-8")
+    }
+
+    /**
+     * Asks the Aries to join a network, exactly like its web page does.
+     * [interfaceType] "wlan0" (Wi-Fi) or "eth0" (cable). [encryption] only for a network typed in by hand.
+     */
+    suspend fun joinNetwork(
+        address: String, svc: AriesService, interfaceType: String, ssid: String, password: String,
+        encryption: String?, dhcp: Boolean, ip: String, netmask: String, gateway: String, dns: String,
+    ) {
+        val fields = LinkedHashMap<String, String>()
+        fields["dhcp"] = if (dhcp) "1" else "0"
+        fields["wifi_password"] = password
+        fields["wifi_ssid"] = ssid
+        if (encryption != null) fields["encryption_type"] = encryption
+        fields["ip_address"] = if (dhcp) "" else ip
+        fields["dns"] = if (dhcp) "" else dns
+        fields["netmask"] = if (dhcp) "" else netmask
+        fields["gateway"] = if (dhcp) "" else gateway
+        fields["interface_type"] = interfaceType
+        set(address, svc, fields.entries.joinToString("") { (k, v) -> "<node id=\"$k\"><value>${esc(v)}</value></node>" })
+    }
+
+    /** Makes the Aries start its own Wi-Fi hotspot. */
+    suspend fun startHotspot(address: String, svc: AriesService) =
+        set(address, svc, "<node id=\"interface_type\"><value>AP</value></node>")
 
     fun nodeXml(type: String, id: String, value: String) = "<node type=\"$type\" id=\"$id\"><value>${esc(value)}</value></node>"
 

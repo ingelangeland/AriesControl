@@ -21,7 +21,7 @@ DEVICES = f'''<?xml version="1.0" encoding="UTF-8"?>
     </device>
 </root>'''
 
-PROPS = {'ServerConfig': 'ServerConfig', 'WebRendererConfig': 'RendererConfig', 'WebProcessorConfig': 'ProcessorConfig', 'WebDeviceConfig': 'DeviceConfig'}
+PROPS = {'WiFiList': 'WiFiList', 'ServerConfig': 'ServerConfig', 'WebRendererConfig': 'RendererConfig', 'WebProcessorConfig': 'ProcessorConfig', 'WebDeviceConfig': 'DeviceConfig'}
 
 
 class Devices(BaseHTTPRequestHandler):
@@ -38,7 +38,8 @@ class Soap(BaseHTTPRequestHandler):
         urn = f'urn:av-openhome-org:service:{svc}:1'
         if act.startswith('Get'):
             path = os.path.join(HERE, 'config', act + '.xml')
-            inner = f'<{PROPS.get(svc, "Value")}>{html.escape(open(path).read())}</{PROPS.get(svc, "Value")}>' if os.path.exists(path) else ''
+            tag = 'WiFiList' if act == 'GetWiFiList' else PROPS.get(svc, 'Value')
+            inner = f'<{tag}>{html.escape(open(path).read())}</{tag}>' if os.path.exists(path) else ''
         else:
             with open(LOG, 'a') as f: f.write(f'{svc} {act}: {html.unescape(body)}\n')
             inner = ''
