@@ -101,12 +101,13 @@ class MusicPage(
 
     /** Called when the page is shown. */
     fun start() {
-        if (renderer == null) find() else startPolling()
+        if (renderer == null) { if (findJob?.isActive != true) find() } else startPolling()
     }
 
     /** Called when the page is hidden. */
     fun stop() {
         pollJob?.cancel(); pollJob = null
+        if (renderer == null) { findJob?.cancel(); findJob = null }
     }
 
     fun refresh() {
@@ -118,7 +119,12 @@ class MusicPage(
         findJob = act.lifecycleScope.launch {
             content.removeAllViews()
             message("Looking for the Aries' player …", busy = true)
-            val r = runCatching { OpenHome.find(act, address, udnPorts) }.getOrNull()
+            var r: Renderer? = null
+            for (attempt in 1..3) {
+                r = runCatching { OpenHome.find(act, address, udnPorts) }.getOrNull()
+                if (r != null) break
+                delay(2000)
+            }
             if (r == null) {
                 content.removeAllViews()
                 message(
@@ -128,6 +134,9 @@ class MusicPage(
                 )
                 content.addView(MaterialButton(act).apply { text = "Try again"; setOnClickListener { find() } }, lp().apply { topMargin = dp(16) })
                 tidalButton()
+                // Keep trying quietly while the page is open (the Aries may still be starting)
+                delay(15_000)
+                find()
                 return@launch
             }
             renderer = r

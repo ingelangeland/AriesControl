@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fake AURALiC Aries for the automatic test: web page (80), service list (9998) and settings services (SOAP)."""
 import html, os, re, sys, threading, time
-from http.server import HTTPServer, SimpleHTTPRequestHandler, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer as HTTPServer, SimpleHTTPRequestHandler, BaseHTTPRequestHandler
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 LOG = os.path.join(sys.argv[1] if len(sys.argv) > 1 else '.', 'SET-LOGG.txt')
