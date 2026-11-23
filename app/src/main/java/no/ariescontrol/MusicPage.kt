@@ -331,6 +331,7 @@ class MusicPage(
         }
         vol = Slider(act).apply {
             valueFrom = 0f; valueTo = 100f; value = 0f; stepSize = 1f
+            isTickVisible = false
             labelBehavior = com.google.android.material.slider.LabelFormatter.LABEL_GONE
             addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
                 override fun onStartTrackingTouch(s: Slider) { draggingVol = true }
