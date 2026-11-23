@@ -73,17 +73,26 @@ object Discovery {
     // ---------- 1) SSDP ----------
 
     private suspend fun ssdp(ctx: Context): List<Streamer> {
+        val answers = ssdpAnswers(ctx, SEARCH_TARGETS)
+        val net = lanNetwork(ctx)
+        return coroutineScope {
+            answers.map { (loc, h) -> async { checkDevice(loc, h, net) } }.awaitAll().filterNotNull()
+        }
+    }
+
+    /** Asks the network for UPnP devices; returns description URL -> answer headers ("_from" = sender IP). */
+    suspend fun ssdpAnswers(ctx: Context, targets: List<String>, listenMs: Long = 3500): Map<String, Map<String, String>> = withContext(Dispatchers.IO) {
         val wifi = ctx.applicationContext.getSystemService(WifiManager::class.java)
         val lock = wifi?.createMulticastLock("aries-ssdp")?.apply { setReferenceCounted(false) }
         runCatching { lock?.acquire() }
+        val answers = LinkedHashMap<String, Map<String, String>>()
         try {
-            val answers = LinkedHashMap<String, Map<String, String>>() // description URL -> headers
             DatagramSocket().use { sock ->
                 lanNetwork(ctx)?.let { n -> runCatching { n.bindSocket(sock) } }
                 sock.soTimeout = 300
                 val group = InetAddress.getByName("239.255.255.250")
                 fun sendAll() {
-                    for (st in SEARCH_TARGETS) {
+                    for (st in targets) {
                         val msg = ("M-SEARCH * HTTP/1.1\r\nHOST: 239.255.255.250:1900\r\n" +
                             "MAN: \"ssdp:discover\"\r\nMX: 2\r\nST: $st\r\nUSER-AGENT: Android UPnP/1.1 AriesControl/1.0\r\n\r\n").toByteArray()
                         runCatching { sock.send(DatagramPacket(msg, msg.size, group, 1900)) }
@@ -93,7 +102,7 @@ object Discovery {
                 val start = SystemClock.elapsedRealtime()
                 var resent = false
                 val buf = ByteArray(8192)
-                while (SystemClock.elapsedRealtime() - start < 3500) {
+                while (SystemClock.elapsedRealtime() - start < listenMs) {
                     if (!resent && SystemClock.elapsedRealtime() - start > 1200) { sendAll(); resent = true }
                     val p = DatagramPacket(buf, buf.size)
                     try { sock.receive(p) } catch (e: SocketTimeoutException) { continue }
@@ -102,13 +111,12 @@ object Discovery {
                     answers.putIfAbsent(loc, h + ("_from" to (p.address?.hostAddress ?: "")))
                 }
             }
-            val net = lanNetwork(ctx)
-            return coroutineScope {
-                answers.map { (loc, h) -> async { checkDevice(loc, h, net) } }.awaitAll().filterNotNull()
-            }
+        } catch (e: Exception) {
+            // no Wi-Fi / no multicast: no answers
         } finally {
             runCatching { lock?.release() }
         }
+        answers
     }
 
     private fun parseHeaders(text: String): Map<String, String> =
@@ -182,7 +190,7 @@ object Discovery {
         true
     }.getOrDefault(false)
 
-    private fun httpGet(url: String, timeoutMs: Int, net: Network?, max: Int = 65536): String? = runCatching {
+    fun httpGet(url: String, timeoutMs: Int, net: Network?, max: Int = 65536): String? = runCatching {
         val u = URL(url)
         val c = (net?.openConnection(u) ?: u.openConnection()) as HttpURLConnection
         c.connectTimeout = timeoutMs; c.readTimeout = timeoutMs
@@ -201,7 +209,7 @@ object Discovery {
         } finally { c.disconnect() }
     }.getOrNull()
 
-    private fun tag(xml: String, name: String): String =
+    fun tag(xml: String, name: String): String =
         Regex("<$name[^>]*>(.*?)</$name>", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
             .find(xml)?.groupValues?.get(1)?.trim()
             ?.replace("&amp;", "&")?.replace("&lt;", "<")?.replace("&gt;", ">")?.replace("&#39;", "'")?.replace("&quot;", "\"")

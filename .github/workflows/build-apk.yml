@@ -120,3 +120,6 @@ jobs:
 
       - name: Feil hvis Wi-Fi-oppsettet ikke kom fram til Aries
         run: grep -q "^OK" sim/RAPPORT-wifi.txt
+
+      - name: Feil hvis musikkontrollen ikke kom fram til Aries
+        run: grep -q "^OK" sim/RAPPORT-music.txt

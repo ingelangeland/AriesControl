@@ -42,6 +42,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -64,6 +65,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var pageHost: FrameLayout
     private lateinit var bottomNav: BottomNavigationView
+    private lateinit var setupTabsBar: TabLayout
+    private var musicPage: MusicPage? = null
+    private var section = MUSIC
+    private var startSection = MUSIC
 
     private var current: Streamer? = null
     private var info: AriesInfo? = null
@@ -89,7 +94,7 @@ class MainActivity : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 when {
                     web.visibility == View.VISIBLE && web.canGoBack() -> web.goBack()
-                    selectedTab != -1 && selectedTab != 0 && bottomNav.visibility == View.VISIBLE -> bottomNav.selectedItemId = 0
+                    section == SETUP && bottomNav.visibility == View.VISIBLE -> bottomNav.selectedItemId = MUSIC
                     else -> finish()
                 }
             }
@@ -97,6 +102,7 @@ class MainActivity : AppCompatActivity() {
 
         // Address given at start (used by the automatic test, harmless otherwise)
         startTab = intent?.getIntExtra("tab", 0) ?: 0
+        startSection = if (intent?.hasExtra("tab") == true) SETUP else intent?.getIntExtra("section", MUSIC) ?: MUSIC
         intent?.getStringExtra("ip")?.let { Prefs.cleanAddress(it) }?.let { Prefs.save(this, Streamer(it, "Aries", "", "manual")) }
 
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -197,22 +203,63 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupTabs(i: AriesInfo, s: Streamer, labels: Labels) {
         pages.clear()
-        selectedTab = -1
+        musicPage?.stop()
+        musicPage = MusicPage(this, s.ip, i.services.map { it.udn to it.port }.distinct())
         pageHost.removeAllViews()
+        // Setup: one tab per settings part, plus the classic web page
+        setupTabsBar.removeAllTabs()
+        val shown = i.services.take(6)
+        shown.forEachIndexed { idx, svc ->
+            pages[idx] = SettingsPage(this, s.ip, svc, i.name, labels, { mode -> openNetworkSetup(mode) }) { selectSetupTab(CLASSIC) }
+            setupTabsBar.addTab(setupTabsBar.newTab().setText(svc.title).setIcon(iconFor(svc.name)).setTag(idx), false)
+        }
+        setupTabsBar.addTab(setupTabsBar.newTab().setText("Classic").setIcon(R.drawable.ic_tab_web).setTag(CLASSIC), false)
+        selectedTab = if (startTab in shown.indices) startTab else 0
+        startTab = 0
+        // Two dashboards: Music and Setup
         val m = bottomNav.menu
         m.clear()
-        val shown = i.services.take(4)
-        shown.forEachIndexed { idx, svc ->
-            m.add(0, idx, idx, svc.title).setIcon(iconFor(svc.name))
-            pages[idx] = SettingsPage(this, s.ip, svc, i.name, labels, { mode -> openNetworkSetup(mode) }) { bottomNav.selectedItemId = CLASSIC }
-        }
-        m.add(0, CLASSIC, 99, "Classic").setIcon(R.drawable.ic_tab_web)
+        m.add(0, MUSIC, 0, "Music").setIcon(R.drawable.ic_tab_music)
+        m.add(0, SETUP, 1, "Setup").setIcon(R.drawable.ic_tab_setup)
         statusBox.visibility = View.GONE
         bottomNav.visibility = View.VISIBLE
-        val first = if (startTab in shown.indices) startTab else 0
-        startTab = 0
+        val first = startSection
+        startSection = MUSIC
+        section = -1
         bottomNav.selectedItemId = first
-        if (selectedTab != first) selectTab(first)
+        if (section != first) showSection(first)
+    }
+
+    private fun showSection(sec: Int) {
+        section = sec
+        statusBox.visibility = View.GONE
+        if (sec == MUSIC) {
+            setupTabsBar.visibility = View.GONE
+            web.visibility = View.GONE
+            val mp = musicPage ?: return
+            swapPage(mp.view)
+            mp.start()
+        } else {
+            musicPage?.stop()
+            setupTabsBar.visibility = View.VISIBLE
+            selectSetupTab(selectedTab)
+        }
+    }
+
+    private fun selectSetupTab(id: Int) {
+        for (t in 0 until setupTabsBar.tabCount) {
+            val tab = setupTabsBar.getTabAt(t) ?: continue
+            if (tab.tag == id) { if (!tab.isSelected) tab.select() else selectTab(id); return }
+        }
+    }
+
+    private fun swapPage(v: View) {
+        web.visibility = View.GONE
+        pageHost.visibility = View.VISIBLE
+        if (v.parent === pageHost) return
+        pageHost.removeAllViews()
+        (v.parent as? ViewGroup)?.removeView(v)
+        pageHost.addView(v, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
     }
 
     private fun openNetworkSetup(mode: String?) {
@@ -232,6 +279,7 @@ class MainActivity : AppCompatActivity() {
     private fun selectTab(id: Int) {
         selectedTab = id
         statusBox.visibility = View.GONE
+        if (section != SETUP) return
         if (id == CLASSIC) {
             pageHost.visibility = View.GONE
             web.visibility = View.VISIBLE
@@ -239,19 +287,17 @@ class MainActivity : AppCompatActivity() {
             if (web.url == null) web.loadUrl(url)
             return
         }
-        web.visibility = View.GONE
-        pageHost.visibility = View.VISIBLE
         val page = pages[id] ?: return
-        pageHost.removeAllViews()
-        (page.view.parent as? ViewGroup)?.removeView(page.view)
-        pageHost.addView(page.view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        swapPage(page.view)
         page.reload(quiet = true)
     }
 
     /** Older or unknown firmware: show the Aries web page only. */
     private fun showClassicOnly() {
         info = null
+        musicPage?.stop()
         bottomNav.visibility = View.GONE
+        setupTabsBar.visibility = View.GONE
         pageHost.visibility = View.GONE
         statusBox.visibility = View.GONE
         web.visibility = View.VISIBLE
@@ -262,6 +308,7 @@ class MainActivity : AppCompatActivity() {
         when {
             current == null -> connect(forceSearch = false)
             info == null && web.visibility == View.VISIBLE -> web.reload()
+            section == MUSIC -> musicPage?.refresh()
             selectedTab == CLASSIC -> web.reload()
             selectedTab >= 0 -> pages[selectedTab]?.reload()
             else -> current?.let { open(it) }
@@ -305,6 +352,8 @@ class MainActivity : AppCompatActivity() {
         web.visibility = View.GONE
         if (::pageHost.isInitialized) pageHost.visibility = View.GONE
         if (::bottomNav.isInitialized) bottomNav.visibility = View.GONE
+        if (::setupTabsBar.isInitialized) setupTabsBar.visibility = View.GONE
+        musicPage?.stop()
         statusBox.visibility = View.VISIBLE
         statusText.text = msg
         progress.visibility = if (busy) View.VISIBLE else View.GONE
@@ -332,14 +381,28 @@ class MainActivity : AppCompatActivity() {
                     toast(if (u != null) "Version ${u.versionName} is available – tap the Update bar" else Updater.status.value)
                 }
                 5 -> prefs().edit().putBoolean("autoUpdate", !Updater.autoCheck(this)).apply()
-                6 -> {
-                    val (_, name) = Updater.currentVersion(this)
+                6 -> lifecycleScope.launch {
+                    val (_, name) = Updater.currentVersion(this@MainActivity)
                     val c = current
-                    AlertDialog.Builder(this)
+                    val r = musicPage?.renderer
+                    val player = when {
+                        r == null -> "Music player: not found yet (open the Music page first)"
+                        else -> {
+                            val cred = runCatching { OpenHome.credentialIds(r) }.getOrNull()
+                            "Music player services: " + r.services.keys.joinToString(", ") + "\n\n" +
+                                "Streaming logins from other apps: " + when {
+                                    cred == null -> "not supported"
+                                    cred.isBlank() -> "supported"
+                                    else -> "supported ($cred)"
+                                }
+                        }
+                    }
+                    AlertDialog.Builder(this@MainActivity)
                         .setTitle("Aries Control $name")
                         .setMessage(
-                            "Shows the settings page of your AURALiC Aries.\n\n" +
-                                (if (c != null) "Connected to: ${c.name}\nAddress: ${c.ip}" else "Not connected")
+                            "Controls and sets up your AURALiC Aries.\n\n" +
+                                (if (c != null) "Connected to: ${c.name}\nAddress: ${c.ip}" else "Not connected") +
+                                "\n\n" + player
                         )
                         .setPositiveButton("OK", null)
                         .show()
@@ -387,6 +450,25 @@ class MainActivity : AppCompatActivity() {
         root.addView(updateBtn, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             setMargins(dp(12), 0, dp(12), dp(8))
         })
+
+        setupTabsBar = TabLayout(this).apply {
+            visibility = View.GONE
+            tabMode = TabLayout.MODE_SCROLLABLE
+            setBackgroundColor(bg)
+            setSelectedTabIndicatorColor(accent)
+            setTabTextColors(Color.parseColor("#8A94A3"), accent)
+            tabIconTint = android.content.res.ColorStateList(arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf()), intArrayOf(accent, Color.parseColor("#8A94A3")))
+            tabRippleColor = android.content.res.ColorStateList.valueOf(Color.parseColor("#22E0A84A"))
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) { (tab.tag as? Int)?.let { selectTab(it) } }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {
+                    val id = tab.tag as? Int ?: return
+                    if (id == CLASSIC) web.reload() else pages[id]?.reload()
+                }
+            })
+        }
+        root.addView(setupTabsBar, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
         val content = FrameLayout(this)
         web = WebView(this).apply {
@@ -479,8 +561,8 @@ class MainActivity : AppCompatActivity() {
             itemIconTintList = android.content.res.ColorStateList(states, intArrayOf(accent, Color.parseColor("#8A94A3")))
             itemTextColor = android.content.res.ColorStateList(states, intArrayOf(accent, Color.parseColor("#8A94A3")))
             itemActiveIndicatorColor = android.content.res.ColorStateList.valueOf(Color.parseColor("#2A2418"))
-            setOnItemSelectedListener { item -> if (item.itemId != selectedTab) selectTab(item.itemId); true }
-            setOnItemReselectedListener { item -> if (item.itemId != CLASSIC) pages[item.itemId]?.reload() }
+            setOnItemSelectedListener { item -> if (item.itemId != section) showSection(item.itemId); true }
+            setOnItemReselectedListener { item -> if (item.itemId == MUSIC) musicPage?.refresh() else reload() }
         }
         root.addView(bottomNav, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
@@ -504,7 +586,21 @@ class MainActivity : AppCompatActivity() {
         setOnClickListener { onClick(it) }
     }
 
-    companion object { private const val CLASSIC = 100 }
+    companion object {
+        private const val CLASSIC = 100
+        private const val MUSIC = 200
+        private const val SETUP = 201
+    }
+
+    override fun onStop() {
+        musicPage?.stop()
+        super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (section == MUSIC && bottomNav.visibility == View.VISIBLE) musicPage?.start()
+    }
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()

@@ -58,7 +58,20 @@ XY=$(python3 tools/find.py Classic); echo "classic at: $XY"
 sleep 8
 adb exec-out screencap -p > sim/5-classic.png
 
-# 6) Network setup: list from the fake Aries, choose HomeWiFi, type a password, Join
+# 6) Music dashboard: now playing from the fake Aries; tap Pause and check it reaches the "Aries"
+adb shell am start -S -n no.ariescontrol/.MainActivity --es ip 10.0.2.2
+sleep 12
+adb exec-out screencap -p > sim/9-music.png
+XY=$(python3 tools/find.py Pause --desc); [ -z "$XY" ] && XY=$(python3 tools/find.py Play --desc); echo "play/pause at: $XY"
+[ -n "$XY" ] && adb shell input tap $XY
+sleep 3
+adb shell input swipe 540 1800 540 400 400
+sleep 2
+adb exec-out screencap -p > sim/9-music-scrolled.png
+if grep -q "OH Playlist P" sim/SET-LOGG.txt 2>/dev/null; then echo "OK: play/pause reached the Aries" > sim/RAPPORT-music.txt; else echo "FEIL: play/pause was not sent (button at '$XY')" > sim/RAPPORT-music.txt; fi
+grep "^OH" sim/SET-LOGG.txt >> sim/RAPPORT-music.txt 2>/dev/null
+
+# 7) Network setup: list from the fake Aries, choose HomeWiFi, type a password, Join
 adb shell am start -S -n no.ariescontrol/.MainActivity --es ip 10.0.2.2 --es setup wifi
 sleep 10
 adb exec-out screencap -p > sim/6-wifi-list.png
