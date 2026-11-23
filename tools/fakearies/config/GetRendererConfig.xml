@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <group language_index="group_output_channel" id="group_output_channel" comment="0">
+        <node type="list" id="output_channel">
+            <key>
+                <language_index>output_channel</language_index>
+            </key>
+            <value editable="1">
+                <display_name></display_name>
+                <value_rule>
+                    <option id="hw:0,0">
+                        <display_name>ARIES Digital Outputs</display_name>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_volume_control" id="group_volume_control" comment="0">
+        <node type="switch" id="volume_control_status">
+            <key>
+                <language_index>volume_control_status</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>1</switch_status>
+            </value>
+            <attached_node value_condition="1">
+                <node type="list" id="volume_control_type">
+                    <key>
+                        <language_index>volume_control_type</language_index>
+                    </key>
+                    <value editable="1">
+                        <language_index>software_volume</language_index>
+                        <value_rule>
+                            <option id="1">
+                                <language_index>software_volume</language_index>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="text" id="max_volume">
+                    <key>
+                        <language_index>max_volume</language_index>
+                    </key>
+                    <value editable="1">
+                        <display_name>100</display_name>
+                        <value_rule>
+                            <text_rule>number</text_rule>
+                            <min_range>10</min_range>
+                            <max_range>100</max_range>
+                            <precision>0</precision>
+                        </value_rule>
+                    </value>
+                </node>
+            </attached_node>
+        </node>
+    </group>
+    <group language_index="group_dac_delay" id="group_dac_delay" comment="0">
+        <node type="list" id="delay_time">
+            <key>
+                <language_index>delay_time</language_index>
+            </key>
+            <value editable="1">
+                <language_index>second_0</language_index>
+                <value_rule>
+                    <option id="0">
+                        <language_index>second_0</language_index>
+                    </option>
+                    <option id="1">
+                        <language_index>second_1</language_index>
+                    </option>
+                    <option id="2">
+                        <language_index>second_2</language_index>
+                    </option>
+                    <option id="3">
+                        <language_index>second_3</language_index>
+                    </option>
+                    <option id="4">
+                        <language_index>second_4</language_index>
+                    </option>
+                    <option id="5">
+                        <language_index>second_5</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_available_input" id="group_available_input">
+        <node type="switch" id="airplay_available_switch" comment="0">
+            <key>
+                <language_index>airplay</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>0</switch_status>
+            </value>
+        </node>
+        <node type="switch" id="roon_available_switch" comment="0">
+            <key>
+                <language_index>roon</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>0</switch_status>
+            </value>
+        </node>
+        <node type="switch" id="spotify_available_switch" comment="0">
+            <key>
+                <language_index>spotify</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>0</switch_status>
+            </value>
+        </node>
+        <node type="switch" id="tidalconnect_available_switch" comment="0">
+            <key>
+                <language_index>tidalconnect</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>1</switch_status>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_upnp_type" id="group_upnp_type" comment="0">
+        <node type="list" id="upnp_type">
+            <key>
+                <language_index>upnp_type</language_index>
+            </key>
+            <value editable="1">
+                <language_index>lightning_device</language_index>
+                <value_rule>
+                    <option id="OpenHome">
+                        <language_index>lightning_device</language_index>
+                    </option>
+                    <option id="uPnP">
+                        <language_index>uPnP_device</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_sound_quality" id="group_sound_quality" comment="0">
+        <node type="list" id="tidal_sound_quality">
+            <key>
+                <language_index>tidal_sound_quality</language_index>
+            </key>
+            <value editable="1">
+                <language_index>hi_res_high_quality</language_index>
+                <value_rule>
+                    <option id="HI_RES">
+                        <language_index>hi_res_high_quality</language_index>
+                    </option>
+                    <option id="LOSSLESS">
+                        <language_index>lossless_quality</language_index>
+                    </option>
+                    <option id="HIGH">
+                        <language_index>high_quality</language_index>
+                    </option>
+                    <option id="LOW">
+                        <language_index>low_quality</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+        <node type="list" id="qobuz_sound_quality">
+            <key>
+                <language_index>qobuz_sound_quality</language_index>
+            </key>
+            <value editable="1">
+                <language_index>lossless_quality</language_index>
+                <value_rule>
+                    <option id="27">
+                        <language_index>hi_res_high_quality</language_index>
+                    </option>
+                    <option id="7">
+                        <language_index>hi_res_low_quality</language_index>
+                    </option>
+                    <option id="6">
+                        <language_index>lossless_quality</language_index>
+                    </option>
+                    <option id="5">
+                        <language_index>mp3_quality</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+        <node type="list" id="amazon_music_sound_quality">
+            <key>
+                <language_index>amazon_music_sound_quality</language_index>
+            </key>
+            <value editable="1">
+                <language_index>lossless_quality</language_index>
+                <value_rule>
+                    <option id="HI_RES">
+                        <language_index>hi_res_high_quality</language_index>
+                    </option>
+                    <option id="HI_FI">
+                        <language_index>lossless_quality</language_index>
+                    </option>
+                    <option id="STD_RES">
+                        <language_index>mp3_quality</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+        <node type="list" id="kkbox_sound_quality">
+            <key>
+                <language_index>kkbox_sound_quality</language_index>
+            </key>
+            <value editable="1">
+                <language_index>lossless_quality</language_index>
+                <value_rule>
+                    <option id="HI_RES">
+                        <language_index>hi_res_high_quality</language_index>
+                    </option>
+                    <option id="HI_FI">
+                        <language_index>lossless_quality</language_index>
+                    </option>
+                    <option id="STD_RES">
+                        <language_index>mp3_quality</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+        <node type="list" id="netease_sound_quality">
+            <key>
+                <language_index>netease_sound_quality</language_index>
+            </key>
+            <value editable="1">
+                <language_index>hi_res_high_quality</language_index>
+                <value_rule>
+                    <option id="HI_FI">
+                        <language_index>hi_res_high_quality</language_index>
+                    </option>
+                    <option id="STD_RES">
+                        <language_index>mp3_quality</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_enable_autoplay" id="group_enable_autoplay" comment="0">
+        <node type="switch" id="qobuz_enable_autoplay">
+            <key>
+                <language_index>qobuz_enable_autoplay</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>0</switch_status>
+            </value>
+        </node>
+    </group>
+</root>

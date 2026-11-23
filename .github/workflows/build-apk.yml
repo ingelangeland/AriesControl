@@ -114,3 +114,6 @@ jobs:
 
       - name: Feil hvis appen krasjet
         run: test ! -f sim/KRASJ.txt
+
+      - name: Feil hvis en endring ikke kom fram til Aries
+        run: grep -q "^OK" sim/RAPPORT-set.txt

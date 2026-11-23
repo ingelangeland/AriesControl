@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <group language_index="group_resampler_config" id="group_resampler_config" comment="0">
+        <node type="switch" id="resampler_switch">
+            <key>
+                <language_index>resampler_switch</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>0</switch_status>
+            </value>
+        </node>
+        <node type="list" id="dop_marker">
+            <key>
+                <language_index>dop_marker</language_index>
+            </key>
+            <value editable="1">
+                <language_index>05fa</language_index>
+                <value_rule>
+                    <option id="0x05/0xFA">
+                        <language_index>05fa</language_index>
+                    </option>
+                    <option id="0xAA">
+                        <language_index>aa</language_index>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+        <node type="compound" id="resampler_config">
+            <key>
+                <language_index>resampler_config</language_index>
+            </key>
+            <value>
+                <language_index>switch_off</language_index>
+            </value>
+            <sub_node>
+                <node type="list" id="sample_44100" comment="0">
+                    <key>
+                        <display_name>44.1KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>352.8KHz</display_name>
+                        <value_rule>
+                            <option id="352800">
+                                <display_name>352.8KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_48000" comment="0">
+                    <key>
+                        <display_name>48KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>384KHz</display_name>
+                        <value_rule>
+                            <option id="384000">
+                                <display_name>384KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_88200" comment="0">
+                    <key>
+                        <display_name>88.2KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>352.8KHz</display_name>
+                        <value_rule>
+                            <option id="352800">
+                                <display_name>352.8KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_96000" comment="0">
+                    <key>
+                        <display_name>96KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>384KHz</display_name>
+                        <value_rule>
+                            <option id="384000">
+                                <display_name>384KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_176400" comment="0">
+                    <key>
+                        <display_name>176.4KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>352.8KHz</display_name>
+                        <value_rule>
+                            <option id="352800">
+                                <display_name>352.8KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_192000" comment="0">
+                    <key>
+                        <display_name>192KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>384KHz</display_name>
+                        <value_rule>
+                            <option id="384000">
+                                <display_name>384KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_352800" comment="0">
+                    <key>
+                        <display_name>352.8KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>352.8KHz</display_name>
+                        <value_rule>
+                            <option id="352800">
+                                <display_name>352.8KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_384000" comment="0">
+                    <key>
+                        <display_name>384KHz</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>384KHz</display_name>
+                        <value_rule>
+                            <option id="384000">
+                                <display_name>384KHz</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD64_44100" comment="0">
+                    <key>
+                        <display_name>DSD64(44x)</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>DSD64(44x) DoP</display_name>
+                        <value_rule>
+                            <option id="DSD64_44100_dop">
+                                <display_name>DSD64(44x) DoP</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD64_48000" comment="0">
+                    <key>
+                        <display_name>DSD64(48x)</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>DSD64(48x) DoP</display_name>
+                        <value_rule>
+                            <option id="DSD64_48000_dop">
+                                <display_name>DSD64(48x) DoP</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD128_44100" comment="0">
+                    <key>
+                        <display_name>DSD128(44x)</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>DSD128(44x) DoP</display_name>
+                        <value_rule>
+                            <option id="DSD128_44100_native">
+                                <display_name>DSD128(44x) Native</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD128_48000" comment="0">
+                    <key>
+                        <display_name>DSD128(48x)</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>DSD128(48x) DoP</display_name>
+                        <value_rule>
+                            <option id="DSD128_48000_native">
+                                <display_name>DSD128(48x) Native</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD256_44100" comment="0">
+                    <key>
+                        <display_name>DSD256(44x)</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>DSD256(44x) Native</display_name>
+                        <value_rule>
+                            <option id="DSD256_44100_native">
+                                <display_name>DSD256(44x) Native</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD256_48000" comment="0">
+                    <key>
+                        <display_name>DSD256(48x)</display_name>
+                    </key>
+                    <value editable="1">
+                        <display_name>DSD256(48x) Native</display_name>
+                        <value_rule>
+                            <option id="DSD256_48000_native">
+                                <display_name>DSD256(48x) Native</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD512_44100" comment="0">
+                    <key>
+                        <display_name>DSD512(44x)</display_name>
+                    </key>
+                    <value editable="0">
+                        <display_name>DSD512(44x) Native</display_name>
+                        <value_rule>
+                            <option id="DSD512_44100_native">
+                                <display_name>DSD512(44x) Native</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+                <node type="list" id="sample_DSD512_48000" comment="0">
+                    <key>
+                        <display_name>DSD512(48x)</display_name>
+                    </key>
+                    <value editable="0">
+                        <display_name>DSD512(48x) Native</display_name>
+                        <value_rule>
+                            <option id="DSD512_48000_native">
+                                <display_name>DSD512(48x) Native</display_name>
+                            </option>
+                        </value_rule>
+                    </value>
+                </node>
+            </sub_node>
+        </node>
+    </group>
+    <group language_index="group_eq_setup" id="group_eq_setup" comment="1">
+        <node type="echart" id="eq_echart" comment="0">
+            <key>
+                <language_index>eq_echart</language_index>
+            </key>
+        </node>
+        <node type="list" id="eq_yrange" relation_node="eq_echart">
+            <key>
+                <language_index>eq_yrange</language_index>
+            </key>
+            <value editable="1">
+                <display_name>24 dB</display_name>
+                <value_rule>
+                    <option id="1">
+                        <display_name>24 dB</display_name>
+                    </option>
+                    <option id="2">
+                        <display_name>48 dB</display_name>
+                    </option>
+                </value_rule>
+            </value>
+        </node>
+        <node type="switch" id="eq_all_enable">
+            <key>
+                <language_index>eq_all_enable</language_index>
+            </key>
+            <value editable="1">
+                <switch_status>0</switch_status>
+            </value>
+        </node>
+        <menu>
+            <node type="menu" id="eq_add_each" disabled="1">
+                <key>
+                    <language_index>eq_add_each</language_index>
+                </key>
+                <value>
+                    <node type="popup" id="add_PeakDip">
+                        <key>
+                            <language_index>eq_peakdip</language_index>
+                        </key>
+                        <value>
+                            <pop_menu>add_PeakDip_popup</pop_menu>
+                        </value>
+                    </node>
+                    <node type="popup" id="add_HighPass">
+                        <key>
+                            <language_index>eq_highpass</language_index>
+                        </key>
+                        <value>
+                            <pop_menu>add_HighPass_popup</pop_menu>
+                        </value>
+                    </node>
+                    <node type="popup" id="add_LowPass">
+                        <key>
+                            <language_index>eq_lowpass</language_index>
+                        </key>
+                        <value>
+                            <pop_menu>add_LowPass_popup</pop_menu>
+                        </value>
+                    </node>
+                    <node type="popup" id="add_BandPass">
+                        <key>
+                            <language_index>eq_bandpass</language_index>
+                        </key>
+                        <value>
+                            <pop_menu>add_BandPass_popup</pop_menu>
+                        </value>
+                    </node>
+                    <node type="popup" id="add_BandStop">
+                        <key>
+                            <language_index>eq_bandstop</language_index>
+                        </key>
+                        <value>
+                            <pop_menu>add_BandStop_popup</pop_menu>
+                        </value>
+                    </node>
+                </value>
+            </node>
+            <node type="button" id="eq_delete_all">
+                <key>
+                    <language_index>eq_delete_all</language_index>
+                </key>
+                <warning>
+                    <language_index>eq_delete_all_warning</language_index>
+                </warning>
+            </node>
+        </menu>
+    </group>
+    <pop_menu id="add_HighPass_popup" comment="0">
+        <title>
+            <language_index>eq_highpass</language_index>
+        </title>
+        <content>
+            <node type="text" id="add_HighPass_frequency" comment="0">
+                <key>
+                    <language_index>eq_frequency_type_2</language_index>
+                </key>
+                <value editable="1">
+                    <display_name/>
+                    <value_rule>
+                        <text_rule>number</text_rule>
+                        <min_range>20</min_range>
+                        <max_range>20000</max_range>
+                        <precision>1</precision>
+                    </value_rule>
+                </value>
+            </node>
+            <node type="list" id="add_HighPass_slope" comment="0">
+                <key>
+                    <language_index>eq_slope</language_index>
+                </key>
+                <value editable="1">
+                    <display_name>6 dB/Octave</display_name>
+                    <value_rule>
+                        <option id="6">
+                            <display_name>6 dB/Octave</display_name>
+                        </option>
+                        <option id="12">
+                            <display_name>12 dB/Octave</display_name>
+                        </option>
+                    </value_rule>
+                </value>
+            </node>
+        </content>
+    </pop_menu>
+    <pop_menu id="add_LowPass_popup" comment="0">
+        <title>
+            <language_index>eq_lowpass</language_index>
+        </title>
+        <content>
+            <node type="text" id="add_LowPass_frequency" comment="0">
+                <key>
+                    <language_index>eq_frequency_type_2</language_index>
+                </key>
+                <value editable="1">
+                    <display_name/>
+                    <value_rule>
+                        <text_rule>number</text_rule>
+                        <min_range>20</min_range>
+                        <max_range>20000</max_range>
+                        <precision>1</precision>
+                    </value_rule>
+                </value>
+            </node>
+            <node type="list" id="add_LowPass_slope" comment="0">
+                <key>
+                    <language_index>eq_slope</language_index>
+                </key>
+                <value editable="1">
+                    <display_name>6 dB/Octave</display_name>
+                    <value_rule>
+                        <option id="6">
+                            <display_name>6 dB/Octave</display_name>
+                        </option>
+                        <option id="12">
+                            <display_name>12 dB/Octave</display_name>
+                        </option>
+                    </value_rule>
+                </value>
+            </node>
+        </content>
+    </pop_menu>
+    <pop_menu id="add_BandPass_popup" comment="0">
+        <title>
+            <language_index>eq_bandpass</language_index>
+        </title>
+        <content>
+            <node type="text" id="add_BandPass_frequency" comment="0">
+                <key>
+                    <language_index>eq_frequency_type_1</language_index>
+                </key>
+                <value editable="1">
+                    <display_name/>
+                    <value_rule>
+                        <text_rule>number</text_rule>
+                        <min_range>20</min_range>
+                        <max_range>20000</max_range>
+                        <precision>1</precision>
+                    </value_rule>
+                </value>
+            </node>
+            <node type="text" id="add_BandPass_q" comment="0">
+                <key>
+                    <language_index>eq_q</language_index>
+                </key>
+                <value editable="1">
+                    <display_name/>
+                    <value_rule>
+                        <text_rule>number</text_rule>
+                        <min_range>0.1</min_range>
+                        <max_range>100</max_range>
+                        <precision>2</precision>
+                    </value_rule>
+                </value>
+            </node>
+        </content>
+    </pop_menu>
+    <pop_menu id="add_BandStop_popup" comment="0">
+        <title>
+            <language_index>eq_bandstop</language_index>
+        </title>
+        <content>
+            <node type="text" id="add_BandStop_frequency" comment="0">
+                <key>
+                    <language_index>eq_frequency_type_1</language_index>
+                </key>
+                <value editable="1">
+                    <display_name/>
+                    <value_rule>
+                        <text_rule>number</text_rule>
+                        <min_range>20</min_range>
+                        <max_range>20000</max_range>
+                        <precision>1</precision>
+                    </value_rule>
+                </value>
+            </node>
+            <node type="text" id="add_BandStop_q" comment="0">
+                <key>
+                    <language_index>eq_q</language_index>
+                </key>
+                <value editable="1">
+                    <display_name/>
+                    <value_rule>
+                        <text_rule>number</text_rule>
+                        <min_range>0.1</min_range>
+                        <max_range>100</max_range>
+                        <precision>2</precision>
+                    </value_rule>
+                </value>
+            </node>
+        </content>
+    </pop_menu>
+    <group language_index="group_speaker_setup" id="group_speaker_setup" comment="0">
+        <node type="compound" id="speaker_setup">
+            <key>
+                <language_index>speaker_setup</language_index>
+            </key>
+            <value>
+                <language_index>switch_off</language_index>
+            </value>
+            <sub_node>
+                <node type="switch" id="speaker_enable">
+                    <key>
+                        <language_index>speaker_enabled</language_index>
+                    </key>
+                    <value editable="1">
+                        <switch_status>0</switch_status>
+                    </value>
+                    <attached_node value_condition="1">
+                        <node type="text" id="speaker_distance_left">
+                            <key>
+                                <language_index>speaker_distance_left</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>0</display_name>
+                                <value_rule>
+                                    <text_rule>number</text_rule>
+                                    <min_range>0</min_range>
+                                    <max_range>3000</max_range>
+                                    <precision>0</precision>
+                                </value_rule>
+                            </value>
+                        </node>
+                        <node type="text" id="speaker_gain_left">
+                            <key>
+                                <language_index>speaker_gain_left</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>0.0</display_name>
+                                <value_rule>
+                                    <text_rule>number</text_rule>
+                                    <min_range>-99</min_range>
+                                    <max_range>0</max_range>
+                                    <precision>2</precision>
+                                </value_rule>
+                            </value>
+                        </node>
+                        <node type="text" id="speaker_distance_right">
+                            <key>
+                                <language_index>speaker_distance_right</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>0</display_name>
+                                <value_rule>
+                                    <text_rule>number</text_rule>
+                                    <min_range>0</min_range>
+                                    <max_range>3000</max_range>
+                                    <precision>0</precision>
+                                </value_rule>
+                            </value>
+                        </node>
+                        <node type="text" id="speaker_gain_right">
+                            <key>
+                                <language_index>speaker_gain_right</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>0.0</display_name>
+                                <value_rule>
+                                    <text_rule>number</text_rule>
+                                    <min_range>-99</min_range>
+                                    <max_range>0</max_range>
+                                    <precision>2</precision>
+                                </value_rule>
+                            </value>
+                        </node>
+                    </attached_node>
+                </node>
+            </sub_node>
+        </node>
+    </group>
+</root>

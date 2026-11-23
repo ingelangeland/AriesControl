@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <group language_index="server_info" id="group_server_info" comment="0">
+        <node type="text" id="server_status"><key><language_index>server_status</language_index></key><value editable="0"><display_name>Idle</display_name></value></node>
+        <node type="text" id="server_track_count"><key><language_index>server_track_count</language_index></key><value editable="0"><display_name>1234</display_name></value></node>
+        <node type="button" id="library_rescan_all"><key><language_index>library_rescan_all</language_index></key></node>
+    </group>
+</root>

@@ -39,7 +39,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.navigation.NavigationBarView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -60,7 +62,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var title: TextView
     private lateinit var updateBtn: TextView
 
+    private lateinit var pageHost: FrameLayout
+    private lateinit var bottomNav: BottomNavigationView
+
     private var current: Streamer? = null
+    private var info: AriesInfo? = null
+    private val pages = HashMap<Int, SettingsPage>()
+    private var selectedTab = -1
+    private var startTab = 0
     private var searchJob: Job? = null
     private var fileCallback: ValueCallback<Array<Uri>>? = null
 
@@ -78,11 +87,16 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (web.visibility == View.VISIBLE && web.canGoBack()) web.goBack() else finish()
+                when {
+                    web.visibility == View.VISIBLE && web.canGoBack() -> web.goBack()
+                    selectedTab != -1 && selectedTab != 0 && bottomNav.visibility == View.VISIBLE -> bottomNav.selectedItemId = 0
+                    else -> finish()
+                }
             }
         })
 
         // Address given at start (used by the automatic test, harmless otherwise)
+        startTab = intent?.getIntExtra("tab", 0) ?: 0
         intent?.getStringExtra("ip")?.let { Prefs.cleanAddress(it) }?.let { Prefs.save(this, Streamer(it, "Aries", "", "manual")) }
 
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -158,13 +172,87 @@ class MainActivity : AppCompatActivity() {
     private fun open(s: Streamer) {
         current = s
         title.text = s.name.ifBlank { "Aries" }
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            showStatus("Reading settings from ${s.name.ifBlank { "the Aries" }} …", busy = true)
+            val i = runCatching { Aries.info(s.ip) }.getOrNull()
+            if (i == null || i.services.isEmpty()) {
+                // Not the Lightning settings service: just show the web page
+                showClassicOnly()
+                return@launch
+            }
+            val labels = Aries.labels(s.ip)
+            info = i
+            title.text = i.name
+            if (s.name != i.name) Prefs.save(this@MainActivity, s.copy(name = i.name))
+            setupTabs(i, s, labels)
+        }
+    }
+
+    private fun setupTabs(i: AriesInfo, s: Streamer, labels: Labels) {
+        pages.clear()
+        selectedTab = -1
+        pageHost.removeAllViews()
+        val m = bottomNav.menu
+        m.clear()
+        val shown = i.services.take(4)
+        shown.forEachIndexed { idx, svc ->
+            m.add(0, idx, idx, svc.title).setIcon(iconFor(svc.name))
+            pages[idx] = SettingsPage(this, s.ip, svc, i.name, labels) { bottomNav.selectedItemId = CLASSIC }
+        }
+        m.add(0, CLASSIC, 99, "Classic").setIcon(R.drawable.ic_tab_web)
+        statusBox.visibility = View.GONE
+        bottomNav.visibility = View.VISIBLE
+        val first = if (startTab in shown.indices) startTab else 0
+        startTab = 0
+        bottomNav.selectedItemId = first
+        if (selectedTab != first) selectTab(first)
+    }
+
+    private fun iconFor(name: String) = when (name) {
+        "WebRendererConfig" -> R.drawable.ic_tab_streamer
+        "WebProcessorConfig", "WebDACConfig", "WebClockConfig" -> R.drawable.ic_tab_processor
+        "ServerConfig" -> R.drawable.ic_tab_library
+        else -> R.drawable.ic_tab_hardware
+    }
+
+    private fun selectTab(id: Int) {
+        selectedTab = id
+        statusBox.visibility = View.GONE
+        if (id == CLASSIC) {
+            pageHost.visibility = View.GONE
+            web.visibility = View.VISIBLE
+            val url = "http://${current?.ip}/"
+            if (web.url == null) web.loadUrl(url)
+            return
+        }
+        web.visibility = View.GONE
+        pageHost.visibility = View.VISIBLE
+        val page = pages[id] ?: return
+        pageHost.removeAllViews()
+        (page.view.parent as? ViewGroup)?.removeView(page.view)
+        pageHost.addView(page.view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        page.reload(quiet = true)
+    }
+
+    /** Older or unknown firmware: show the Aries web page only. */
+    private fun showClassicOnly() {
+        info = null
+        bottomNav.visibility = View.GONE
+        pageHost.visibility = View.GONE
         statusBox.visibility = View.GONE
         web.visibility = View.VISIBLE
-        web.loadUrl("http://${s.ip}/")
+        web.loadUrl("http://${current?.ip}/")
     }
 
     private fun reload() {
-        if (current != null && web.visibility == View.VISIBLE) web.reload() else connect(forceSearch = false)
+        when {
+            current == null -> connect(forceSearch = false)
+            info == null && web.visibility == View.VISIBLE -> web.reload()
+            selectedTab == CLASSIC -> web.reload()
+            selectedTab >= 0 -> pages[selectedTab]?.reload()
+            else -> current?.let { open(it) }
+        }
     }
 
     private fun askAddress() {
@@ -202,6 +290,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showStatus(msg: String, busy: Boolean) {
         web.visibility = View.GONE
+        if (::pageHost.isInitialized) pageHost.visibility = View.GONE
+        if (::bottomNav.isInitialized) bottomNav.visibility = View.GONE
         statusBox.visibility = View.VISIBLE
         statusText.text = msg
         progress.visibility = if (busy) View.VISIBLE else View.GONE
@@ -309,7 +399,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-                    if (request.isForMainFrame) {
+                    if (request.isForMainFrame && info != null) {
+                        toast("Classic view couldn't load (${error.description})")
+                    } else if (request.isForMainFrame) {
                         showStatus(
                             "Lost contact with the Aries (${error.description}).\n\n" +
                                 "Tap Search again – it may have got a new address.",
@@ -355,7 +447,23 @@ class MainActivity : AppCompatActivity() {
         statusBox.addView(buttons)
         content.addView(statusBox, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER))
 
+        pageHost = FrameLayout(this).apply { visibility = View.GONE }
+        content.addView(pageHost, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
         root.addView(content, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+
+        bottomNav = BottomNavigationView(this).apply {
+            visibility = View.GONE
+            setBackgroundColor(Color.parseColor("#151A20"))
+            labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_LABELED
+            val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+            itemIconTintList = android.content.res.ColorStateList(states, intArrayOf(accent, Color.parseColor("#8A94A3")))
+            itemTextColor = android.content.res.ColorStateList(states, intArrayOf(accent, Color.parseColor("#8A94A3")))
+            itemActiveIndicatorColor = android.content.res.ColorStateList.valueOf(Color.parseColor("#2A2418"))
+            setOnItemSelectedListener { item -> if (item.itemId != selectedTab) selectTab(item.itemId); true }
+            setOnItemReselectedListener { item -> if (item.itemId != CLASSIC) pages[item.itemId]?.reload() }
+        }
+        root.addView(bottomNav, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
         // Keep clear of the status bar, navigation bar and keyboard (Android 15 draws edge to edge)
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
@@ -376,6 +484,8 @@ class MainActivity : AppCompatActivity() {
         if (context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, tv, true)) setBackgroundResource(tv.resourceId)
         setOnClickListener { onClick(it) }
     }
+
+    companion object { private const val CLASSIC = 100 }
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()

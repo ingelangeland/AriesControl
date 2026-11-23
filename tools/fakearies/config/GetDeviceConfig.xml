@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <group language_index="group_start_on_halt" id="group_start_on_halt" comment="0">
+        <node type="button" id="halt_device">
+            <key>
+                <language_index>halt_device</language_index>
+            </key>
+        </node>
+        <node type="compound" id="reboot_switch" comment="0">
+            <key>
+                <language_index>auto_reboot</language_index>
+            </key>
+            <value editable="0">
+                <language_index>switch_off</language_index>
+            </value>
+            <sub_node>
+                <node type="switch" id="auto_reboot">
+                    <key>
+                        <language_index>auto_reboot</language_index>
+                    </key>
+                    <value editable="1">
+                        <switch_status>0</switch_status>
+                    </value>
+                    <attached_node value_condition="1">
+                        <node type="list" id="auto_reboot_time">
+                            <key>
+                                <language_index>auto_reboot_time</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>04:00AM</display_name>
+                                <value_rule>
+                                    <option id="0">
+                                        <display_name>00:00AM</display_name>
+                                    </option>
+                                    <option id="1">
+                                        <display_name>01:00AM</display_name>
+                                    </option>
+                                    <option id="2">
+                                        <display_name>02:00AM</display_name>
+                                    </option>
+                                    <option id="3">
+                                        <display_name>03:00AM</display_name>
+                                    </option>
+                                    <option id="4">
+                                        <display_name>04:00AM</display_name>
+                                    </option>
+                                    <option id="5">
+                                        <display_name>05:00AM</display_name>
+                                    </option>
+                                    <option id="6">
+                                        <display_name>06:00AM</display_name>
+                                    </option>
+                                    <option id="7">
+                                        <display_name>07:00AM</display_name>
+                                    </option>
+                                    <option id="8">
+                                        <display_name>08:00AM</display_name>
+                                    </option>
+                                    <option id="9">
+                                        <display_name>09:00AM</display_name>
+                                    </option>
+                                    <option id="10">
+                                        <display_name>10:00AM</display_name>
+                                    </option>
+                                    <option id="11">
+                                        <display_name>11:00AM</display_name>
+                                    </option>
+                                    <option id="12">
+                                        <display_name>12:00PM</display_name>
+                                    </option>
+                                    <option id="13">
+                                        <display_name>01:00PM</display_name>
+                                    </option>
+                                    <option id="14">
+                                        <display_name>02:00PM</display_name>
+                                    </option>
+                                    <option id="15">
+                                        <display_name>03:00PM</display_name>
+                                    </option>
+                                    <option id="16">
+                                        <display_name>04:00PM</display_name>
+                                    </option>
+                                    <option id="17">
+                                        <display_name>05:00PM</display_name>
+                                    </option>
+                                    <option id="18">
+                                        <display_name>06:00PM</display_name>
+                                    </option>
+                                    <option id="19">
+                                        <display_name>07:00PM</display_name>
+                                    </option>
+                                    <option id="20">
+                                        <display_name>08:00PM</display_name>
+                                    </option>
+                                    <option id="21">
+                                        <display_name>09:00PM</display_name>
+                                    </option>
+                                    <option id="22">
+                                        <display_name>10:00PM</display_name>
+                                    </option>
+                                    <option id="23">
+                                        <display_name>11:00PM</display_name>
+                                    </option>
+                                </value_rule>
+                            </value>
+                        </node>
+                    </attached_node>
+                </node>
+            </sub_node>
+        </node>
+    </group>
+    <group language_index="group_device_name" id="group_device_name" comment="0">
+        <node type="text" id="device_name">
+            <key>
+                <language_index>device_name</language_index>
+            </key>
+            <value editable="1">
+                <display_name>Auralic Aries</display_name>
+                <value_rule>
+                    <text_rule>unicode</text_rule>
+                    <min_length>1</min_length>
+                    <max_length>32</max_length>
+                </value_rule>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_password_protect" id="group_password_protect" comment="0">
+        <node type="compound" id="passcode_protect">
+            <key>
+                <language_index>passcode_protect</language_index>
+            </key>
+            <value editable="0">
+                <language_index>protect_off</language_index>
+            </value>
+            <sub_node>
+                <node type="switch" id="passcode_switch">
+                    <key>
+                        <language_index>passcode_switch</language_index>
+                    </key>
+                    <value editable="1">
+                        <switch_status>0</switch_status>
+                    </value>
+                    <attached_node value_condition="1">
+                        <node type="text" id="passcode">
+                            <key>
+                                <language_index>passcode</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name password="1">0000</display_name>
+                                <value_rule>
+                                    <text_rule>unicode</text_rule>
+                                    <min_length>4</min_length>
+                                    <max_length>8</max_length>
+                                </value_rule>
+                            </value>
+                        </node>
+                    </attached_node>
+                </node>
+            </sub_node>
+        </node>
+    </group>
+    <group language_index="configure_network" id="group_configure_network" comment="0">
+        <node type="compound" id="configure_network" comment="0">
+            <key>
+                <language_index>network_connection</language_index>
+            </key>
+            <value editable="0">
+                <language_index>wireless</language_index>
+            </value>
+            <sub_node>
+                <node type="text" id="wifi_ssid" comment="0">
+                    <key>
+                        <language_index>wifi_ssid</language_index>
+                    </key>
+                    <value editable="0">
+                        <display_name>HomeWiFi</display_name>
+                    </value>
+                </node>
+                <node type="switch" id="dhcp" comment="0">
+                    <key>
+                        <language_index>dhcp</language_index>
+                    </key>
+                    <value editable="1">
+                        <switch_status>1</switch_status>
+                    </value>
+                    <attached_node value_condition="0">
+                        <node type="text" id="ip_address" comment="0">
+                            <key>
+                                <language_index>ip_address</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>192.168.1.20</display_name>
+                                <value_rule>
+                                    <text_rule>ip-address</text_rule>
+                                    <min_length>1</min_length>
+                                    <max_length>32</max_length>
+                                </value_rule>
+                            </value>
+                        </node>
+                        <node type="text" id="netmask" comment="0">
+                            <key>
+                                <language_index>netmask</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>255.255.255.0</display_name>
+                                <value_rule>
+                                    <text_rule>ip-address</text_rule>
+                                    <min_length>1</min_length>
+                                    <max_length>32</max_length>
+                                </value_rule>
+                            </value>
+                        </node>
+                        <node type="text" id="gateway" comment="0">
+                            <key>
+                                <language_index>gateway</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>192.168.1.1</display_name>
+                                <value_rule>
+                                    <text_rule>ip-address</text_rule>
+                                    <min_length>1</min_length>
+                                    <max_length>32</max_length>
+                                </value_rule>
+                            </value>
+                        </node>
+                        <node type="text" id="dns" comment="0">
+                            <key>
+                                <language_index>dns</language_index>
+                            </key>
+                            <value editable="1">
+                                <display_name>192.168.1.1</display_name>
+                                <value_rule>
+                                    <text_rule>ip-address</text_rule>
+                                    <min_length>1</min_length>
+                                    <max_length>32</max_length>
+                                </value_rule>
+                            </value>
+                        </node>
+                    </attached_node>
+                </node>
+            </sub_node>
+        </node>
+        <menu>
+            <node type="pop_button" id="set_wireless">
+                <key>
+                    <language_index>set_wireless</language_index>
+                </key>
+            </node>
+            <node type="pop_button" id="set_wired">
+                <key>
+                    <language_index>set_wired</language_index>
+                </key>
+            </node>
+            <node type="pop_button" id="set_ap">
+                <key>
+                    <language_index>set_ap</language_index>
+                </key>
+                <warning>
+                    <language_index>Start_ap_warning</language_index>
+                </warning>
+            </node>
+        </menu>
+    </group>
+    <group language_index="group_network_info" id="group_network_info" comment="0">
+        <node type="text" id="wifi_ssid" comment="0">
+            <key>
+                <language_index>wifi_ssid</language_index>
+            </key>
+            <value editable="0">
+                <display_name>HomeWiFi</display_name>
+            </value>
+        </node>
+        <node type="text" id="ip_address" comment="0">
+            <key>
+                <language_index>ip_address</language_index>
+            </key>
+            <value editable="0">
+                <display_name>192.168.1.20</display_name>
+            </value>
+        </node>
+        <node type="text" id="netmask" comment="0">
+            <key>
+                <language_index>netmask</language_index>
+            </key>
+            <value editable="0">
+                <display_name>255.255.255.0</display_name>
+            </value>
+        </node>
+        <node type="text" id="gateway" comment="0">
+            <key>
+                <language_index>gateway</language_index>
+            </key>
+            <value editable="0">
+                <display_name>192.168.1.1</display_name>
+            </value>
+        </node>
+        <node type="text" id="dns" comment="0">
+            <key>
+                <language_index>dns</language_index>
+            </key>
+            <value editable="0">
+                <display_name>192.168.1.1</display_name>
+            </value>
+        </node>
+        <node type="switch" id="dhcp" comment="0">
+            <key>
+                <language_index>dhcp</language_index>
+            </key>
+            <value editable="0">
+                <switch_status>1</switch_status>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_device_info" id="group_device_info" comment="0">
+        <node type="text" id="info_device_mfg" comment="0">
+            <key>
+                <language_index>info_device_mfg</language_index>
+            </key>
+            <value editable="0">
+                <display_name>AURALiC</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_type" comment="0">
+            <key>
+                <language_index>info_device_type</language_index>
+            </key>
+            <value editable="0">
+                <display_name>ARIES</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_sn" comment="0">
+            <key>
+                <language_index>info_device_sn</language_index>
+            </key>
+            <value editable="0">
+                <display_name>TEST0001</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_core" comment="0">
+            <key>
+                <language_index>info_device_core</language_index>
+            </key>
+            <value editable="0">
+                <display_name>1.0</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_wifi" comment="0">
+            <key>
+                <language_index>info_device_wifi</language_index>
+            </key>
+            <value editable="0">
+                <display_name>AR9580</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_main" comment="0">
+            <key>
+                <language_index>info_device_main</language_index>
+            </key>
+            <value editable="0">
+                <display_name>15110039</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_mac0" comment="0">
+            <key>
+                <language_index>info_device_mac0</language_index>
+            </key>
+            <value editable="0">
+                <display_name>00:11:22:33:44:55</display_name>
+            </value>
+        </node>
+        <node type="text" id="info_device_mac1" comment="0">
+            <key>
+                <language_index>info_device_mac1</language_index>
+            </key>
+            <value editable="0">
+                <display_name>00:11:22:33:44:55</display_name>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_firmware_version" id="group_firmware_version" comment="0">
+        <node type="text" id="firmware_version" comment="0">
+            <key>
+                <language_index>firmware_version</language_index>
+            </key>
+            <value editable="0">
+                <display_name>9.6</display_name>
+            </value>
+        </node>
+    </group>
+    <group language_index="group_return_to_default" id="group_return_to_default" comment="0">
+        <node type="button" id="return_to_default" comment="1">
+            <key>
+                <language_index>return_to_default</language_index>
+            </key>
+            <warning>
+                <language_index>return_to_default_warning</language_index>
+            </warning>
+        </node>
+    </group>
+</root>
